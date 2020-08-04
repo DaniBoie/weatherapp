@@ -65,11 +65,15 @@
 
     document.getElementById('searchBtn').addEventListener('click', event => {
       event.preventDefault()
+      search(document.getElementById('city').value)
+      history(document.getElementById('city').value)
+    })
 
-      let city = document.getElementById('city').value
+
+    function search(city,searched) {
+      console.log('history')
       let lati = ''
       let loni = ''
-
 
       // Axios call to get data on the page
       axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
@@ -100,7 +104,7 @@
               UV Index: <button class="btn" id="uvIndex">${res.data.value}</button>
               `
             document.getElementById('weatherCard').append(indicator)
-  
+
             let danger = Math.trunc(res.data.value)
             if (danger >= 0 && danger < 3) {
               console.log("0-2")
@@ -155,20 +159,18 @@
         .catch(err => { console.log(err) })
 
       // History function
-      let searchHistory = document.getElementById('city').value
-      let history = document.createElement('div')
-      history.className = "card historyCard"
-      history.innerHTML = `
-    <button onclick=historySearch()>
-    <h3>${document.getElementById('city').value}</h3>
+
+      }
+
+      function history(city) {
+        let history = document.createElement('div')
+        history.className = "card historyCard"
+        history.innerHTML = `
+    <button onclick=search('${city}')>
+    <h3>${city}</h3>
     </button>
     `
-      document.getElementById('historyRow').append(history)
-
-    })
-    function search() {
-        console.log('history')
-
+        document.getElementById('historyRow').append(history)
       }
   </script>
 </body>
