@@ -39,13 +39,42 @@
           </div>
         </div>
       </div>
+    </section>
 
-      <!--  -->
+    <section class="row">
+      <div class="col" id="day2">
+        <div class="card">
+          <h1>hello how are you</h1>
+        </div>
+      </div>
+      <div class="col" id="day3">
+        <div class="card">
+          <h1>hello how are you</h1>
+        </div>
+      </div>
+      <div class="col" id="day4">
+        <div class="card">
+          <h1>hello how are you</h1>
+        </div>
+      </div>
+      <div class="col" id="day5">
+        <div class="card">
+          <h1>hello how are you</h1>
+        </div>
+      </div>
+      <div class="col" id="day6">
+        <div class="card">
+          <h1>hello how are you</h1>
+        </div>
+      </div>
     </section>
   </main>
 
   <div id="weather"></div>
   <div id="forecast"></div>
+
+
+
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -57,6 +86,7 @@
     integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script>
 
     document.getElementById('searchBtn').addEventListener('click', event => {
@@ -70,10 +100,12 @@
       // Axios call to get data on the page
       axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
         .then(res => {
-          console.log(res.data)
+          console.log(res)
           document.getElementById('weatherCard').innerHTML = `
           <h1>${res.data.name}</h1>
+          <h4>${moment().format("dddd, MMMM Do YYYY")}</h4>
           <h2>Weather: ${res.data.weather[0].description} </h2>
+          <img src="https://openweathermap.org/img/wn/${res.data.weather[0].icon}@2x.png" id="icon">
           <h3>Temperature ${res.data.main.temp}F</h3>
           <h3>Humidity: ${res.data.main.humidity}%</h3>
           <h3>Wind Speed ${res.data.wind.speed} mph</h3>
@@ -88,6 +120,7 @@
         axios.get(`https://api.openweathermap.org/data/2.5/uvi?appid=1dd25ac798a84daed3b612ef4b3c9a3e&lat=${lati}&lon=${loni}`)
 
           .then(res => {
+            console.log(res)
             let indicator = document.createElement('h3')
             indicator.innerHTML = `
               UV Index: <button class="btn" id="uvIndex">${res.data.value}</button>
@@ -109,7 +142,7 @@
           document.getElementById('uvIndex').style.backgroundColor = 'darkorange'
             } else if (danger >=11 && danger < 15){
         console.log("11+")
-        document.getElementById('uvIndex').style.backgroundColor = 'red'
+        document.getElementById('uvIndex').style.backgroundColor = 'rgb(240, 66, 66'
             }
 
       
@@ -119,24 +152,30 @@
         console.log(err)
       })
     clearInterval(UV)
-        }, 150);
+        }, 200);
 
     // Second axios call to get the weather data for the next week
     axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
       .then(res => {
         let forecast = res.data.list
 
+        let displayDay = 2
+
         for (let i = 5; i < forecast.length; i += 8) {
           // console.log(forecast[i])
+          let grabDay = "#day" + parseInt(displayDay)
+          displayDay++
           let forecastElem = document.createElement('div')
           forecastElem.innerHTML = `
             <h1>${forecast[i].dt_txt}</h1>
+            <img src="https://openweathermap.org/img/wn/${forecast[i].weather[0].icon}@2x.png">
             <h2>Weather: ${forecast[i].weather[0].description}</h2>
             <h3>Temperature: ${forecast[i].main.temp}</h3>
             <h3>Humidity: ${forecast[i].main.humidity}</h3>
             <!-- <h3>Wind Speed: ${forecast[i].wind.speed}</h3> -->
             `
-          document.getElementById('forecast').append(forecastElem)
+          document.getElementById(grabDay).append(forecastElem)
+          console.log(grabDay)
         }
       })
       .catch(err => { console.log(err) })

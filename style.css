@@ -7,7 +7,11 @@
   border: solid 1px black;
 }
 
+#icon {
+  align-self: flex-end;
+}
+
 .cardStyle {
   background-color: gainsboro;
-  
+
 }
