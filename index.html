@@ -13,7 +13,7 @@
 <body>
 
 
-  <main class="container">
+  <main class="container" id="mainPage">
     <section class="row">
       <div class="col-12">
         <form id="searchForm">
@@ -41,37 +41,11 @@
       </div>
     </section>
 
-    <section class="row">
-      <div class="col" id="day2">
-        <div class="card">
-          <h1>hello how are you</h1>
-        </div>
-      </div>
-      <div class="col" id="day3">
-        <div class="card">
-          <h1>hello how are you</h1>
-        </div>
-      </div>
-      <div class="col" id="day4">
-        <div class="card">
-          <h1>hello how are you</h1>
-        </div>
-      </div>
-      <div class="col" id="day5">
-        <div class="card">
-          <h1>hello how are you</h1>
-        </div>
-      </div>
-      <div class="col" id="day6">
-        <div class="card">
-          <h1>hello how are you</h1>
-        </div>
-      </div>
-    </section>
+    <div id="forecast"></div>
   </main>
 
   <div id="weather"></div>
-  <div id="forecast"></div>
+
 
 
 
@@ -86,7 +60,7 @@
     integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script>
 
     document.getElementById('searchBtn').addEventListener('click', event => {
@@ -126,68 +100,76 @@
               UV Index: <button class="btn" id="uvIndex">${res.data.value}</button>
               `
             document.getElementById('weatherCard').append(indicator)
-            Math.trunc(res.data.value)
-            let danger = 11
+  
+            let danger = Math.trunc(res.data.value)
             if (danger >= 0 && danger < 3) {
               console.log("0-2")
               document.getElementById('uvIndex').style.backgroundColor = 'green'
             } else if (danger >= 3 && danger < 6) {
               console.log("3-5")
               document.getElementById('uvIndex').style.backgroundColor = 'yellow'
-            } else if (danger >= 6 && danger < 8){
+            } else if (danger >= 6 && danger < 8) {
               console.log("6-7")
               document.getElementById('uvIndex').style.backgroundColor = 'orange'
-            } else if (danger >= 8 && danger < 11){
-          console.log("8-10")
-          document.getElementById('uvIndex').style.backgroundColor = 'darkorange'
-            } else if (danger >=11 && danger < 15){
-        console.log("11+")
-        document.getElementById('uvIndex').style.backgroundColor = 'rgb(240, 66, 66'
+            } else if (danger >= 8 && danger < 11) {
+              console.log("8-10")
+              document.getElementById('uvIndex').style.backgroundColor = 'darkorange'
+            } else if (danger >= 11 && danger < 15) {
+              console.log("11+")
+              document.getElementById('uvIndex').style.backgroundColor = 'rgb(240, 66, 66'
             }
 
-      
+          })
+          .catch(err => {
+            console.log(err)
+          })
+        clearInterval(UV)
+      }, 200);
+
+      // Second axios call to get the weather data for the next week
+      axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
+        .then(res => {
+          console.log(res)
+          let forecast = res.data.list
+
+          // let displayDay = 2
+
+          for (let i = 2; i < forecast.length; i += 8) {
+            console.log(forecast[i])
+            let parentDiv = document.createElement('div')
+            parentDiv.className = "col futureDisplay"
+            let forecastElem = document.createElement('div')
+            forecastElem.className = "card weekCard"
+            forecastElem.innerHTML = `
+            <h1>${moment(forecast[i].dt_txt).format("MMMM DD,  YYYY")}</h1>
+            <img src="https://openweathermap.org/img/wn/${forecast[i].weather[0].icon}@2x.png" class="iconFix">
+            <h2 >Weather: ${forecast[i].weather[0].description}</h2>
+            <h3>Temperature: ${forecast[i].main.temp}F</h3>
+            <h3>Humidity: ${forecast[i].main.humidity}%</h3>
+            <!-- <h3>Wind Speed: ${forecast[i].wind.speed}</h3> -->            `
+
+            parentDiv.append(forecastElem)
+            document.getElementById('forecast').append(parentDiv)
+          }
+        })
+        .catch(err => { console.log(err) })
+
+      // History function
+      let searchHistory = document.getElementById('city').value
+      let history = document.createElement('div')
+      history.className = "card historyCard"
+      history.innerHTML = `
+    <button onclick=historySearch()>
+    <h3>${document.getElementById('city').value}</h3>
+    </button>
+    `
+      document.getElementById('historyRow').append(history)
 
     })
-      .catch(err => {
-        console.log(err)
-      })
-    clearInterval(UV)
-        }, 200);
+    function search() {
+        console.log('history')
 
-    // Second axios call to get the weather data for the next week
-    axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
-      .then(res => {
-        let forecast = res.data.list
-
-        let displayDay = 2
-
-        for (let i = 5; i < forecast.length; i += 8) {
-          // console.log(forecast[i])
-          let grabDay = "#day" + parseInt(displayDay)
-          displayDay++
-          let forecastElem = document.createElement('div')
-          forecastElem.innerHTML = `
-            <h1>${forecast[i].dt_txt}</h1>
-            <img src="https://openweathermap.org/img/wn/${forecast[i].weather[0].icon}@2x.png">
-            <h2>Weather: ${forecast[i].weather[0].description}</h2>
-            <h3>Temperature: ${forecast[i].main.temp}</h3>
-            <h3>Humidity: ${forecast[i].main.humidity}</h3>
-            <!-- <h3>Wind Speed: ${forecast[i].wind.speed}</h3> -->
-            `
-          document.getElementById(grabDay).append(forecastElem)
-          console.log(grabDay)
-        }
-      })
-      .catch(err => { console.log(err) })
-
-    // History function
-    let searchHistory = document.getElementById('city').value
-    let history = document.createElement('div')
-    history.className = "card"
-    history.innerHTML = `${document.getElementById('city').value}`
-    document.getElementById('historyRow').append(history)
-
-    })
+      }
   </script>
 </body>
 
