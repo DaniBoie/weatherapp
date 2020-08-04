@@ -16,21 +16,21 @@
   <main class="container">
     <section class="row">
       <div class="col-12">
-      <form id="searchForm">
-        <p>
-          <label for="city">City:</label>
-          <input type="text" name="city" id="city">
-        </p>
-        <p>
-          <button id="searchBtn">Search</button>
-        </p>
-      </form>
+        <form id="searchForm">
+          <p>
+            <label for="city">City:</label>
+            <input type="text" name="city" id="city">
+          </p>
+          <p>
+            <button id="searchBtn">Search</button>
+          </p>
+        </form>
       </div>
     </section>
 
-    <section class="row" >
+    <section class="row">
       <div class="col-4" id="historyRow">
-        
+
       </div>
       <div class="col-8">
         <div class="card cardStyle">
@@ -40,12 +40,12 @@
         </div>
       </div>
 
-<!--  -->
+      <!--  -->
     </section>
   </main>
 
-      <div id="weather"></div>
-      <div id="forecast"></div>
+  <div id="weather"></div>
+  <div id="forecast"></div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -64,7 +64,7 @@
 
       let city = document.getElementById('city').value
       let lati = ''
-      let loni =  ''
+      let loni = ''
 
 
       // Axios call to get data on the page
@@ -78,53 +78,75 @@
           <h3>Humidity: ${res.data.main.humidity}%</h3>
           <h3>Wind Speed ${res.data.wind.speed} mph</h3>
         `
-        loni = res.data.coord.lon
-        lati = res.data.coord.lat
+          loni = res.data.coord.lon
+          lati = res.data.coord.lat
         })
         .catch(err => { console.log(err) })
 
-        let UV = setInterval(function() {
-          axios.get(`https://api.openweathermap.org/data/2.5/uvi?appid=1dd25ac798a84daed3b612ef4b3c9a3e&lat=${lati}&lon=${loni}`)
-            .then(res => {
-              
-              let indicator = document.createElement('h3')
-              indicator.innerHTML = `
+      // Setting axios function in a timer to ensure the others run first
+      let UV = setInterval(function () {
+        axios.get(`https://api.openweathermap.org/data/2.5/uvi?appid=1dd25ac798a84daed3b612ef4b3c9a3e&lat=${lati}&lon=${loni}`)
+
+          .then(res => {
+            let indicator = document.createElement('h3')
+            indicator.innerHTML = `
               UV Index: <button class="btn" id="uvIndex">${res.data.value}</button>
               `
-              document.getElementById('weatherCard').append(indicator)
-            })
-            .catch(err => {
-              console.log(err)
-            })
-            clearInterval(UV)
-        }, 100);
-        
-        // Second axios call to get the weather data for the next week
-      axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
-        .then(res => {
-          let forecast = res.data.list
+            document.getElementById('weatherCard').append(indicator)
+            Math.trunc(res.data.value)
+            let danger = 11
+            if (danger >= 0 && danger < 3) {
+              console.log("0-2")
+              document.getElementById('uvIndex').style.backgroundColor = 'green'
+            } else if (danger >= 3 && danger < 6) {
+              console.log("3-5")
+              document.getElementById('uvIndex').style.backgroundColor = 'yellow'
+            } else if (danger >= 6 && danger < 8){
+              console.log("6-7")
+              document.getElementById('uvIndex').style.backgroundColor = 'orange'
+            } else if (danger >= 8 && danger < 11){
+          console.log("8-10")
+          document.getElementById('uvIndex').style.backgroundColor = 'darkorange'
+            } else if (danger >=11 && danger < 15){
+        console.log("11+")
+        document.getElementById('uvIndex').style.backgroundColor = 'red'
+            }
 
-          for (let i = 5; i < forecast.length; i += 8) {
-            // console.log(forecast[i])
-            let forecastElem = document.createElement('div')
-            forecastElem.innerHTML = `
+      
+
+    })
+      .catch(err => {
+        console.log(err)
+      })
+    clearInterval(UV)
+        }, 150);
+
+    // Second axios call to get the weather data for the next week
+    axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=1dd25ac798a84daed3b612ef4b3c9a3e`)
+      .then(res => {
+        let forecast = res.data.list
+
+        for (let i = 5; i < forecast.length; i += 8) {
+          // console.log(forecast[i])
+          let forecastElem = document.createElement('div')
+          forecastElem.innerHTML = `
             <h1>${forecast[i].dt_txt}</h1>
             <h2>Weather: ${forecast[i].weather[0].description}</h2>
             <h3>Temperature: ${forecast[i].main.temp}</h3>
             <h3>Humidity: ${forecast[i].main.humidity}</h3>
             <!-- <h3>Wind Speed: ${forecast[i].wind.speed}</h3> -->
             `
-            document.getElementById('forecast').append(forecastElem)
-          }
-        })
-        .catch(err => { console.log(err) })
+          document.getElementById('forecast').append(forecastElem)
+        }
+      })
+      .catch(err => { console.log(err) })
 
-        // History function
-        let searchHistory = document.getElementById('city').value
-        let history = document.createElement('div')
-        history.className = "card"
-        history.innerHTML = `${document.getElementById('city').value}`
-        document.getElementById('historyRow').append(history)
+    // History function
+    let searchHistory = document.getElementById('city').value
+    let history = document.createElement('div')
+    history.className = "card"
+    history.innerHTML = `${document.getElementById('city').value}`
+    document.getElementById('historyRow').append(history)
 
     })
   </script>

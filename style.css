@@ -4,10 +4,10 @@
 }
 
 #uvIndex {
-  background-color: white;
+  border: solid 1px black;
 }
 
 .cardStyle {
-  background-color: cadetblue;
+  background-color: gainsboro;
   
 }
